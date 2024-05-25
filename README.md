@@ -1,7 +1,7 @@
 # Fashion API
 
 ## Overview
-Our Fashion API leverages AI and computer vision to recommend personalized outfits based on user preferences or uploaded photos. It includes a virtual try-on feature that enhances the online shopping experience by allowing users to see how clothes would look on them virtually.
+Our Fashion API harnesses AI and computer vision to recommend personalized outfits based on user preferences or uploaded photos. It features a virtual try-on capability, enhancing the online shopping experience by allowing users to see how clothes would look on them virtually. Built with FastAPI, OpenAI, and Hugging Face, and hosted on Azure, this project showcases advanced tech integration and CI/CD expertise, demonstrating a cutting-edge approach to fashion tech.
 
 ## Demo
 Check out our demo video to see the Fashion API in action: [Fashion API Demo](https://youtu.be/dgodYz6R7hA)
