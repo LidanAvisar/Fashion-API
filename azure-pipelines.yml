@@ -1,0 +1,63 @@
+trigger:
+- master
+
+resources:
+- repo: self
+
+variables:
+- group: env-fashionapi
+- name: dockerRegistryServiceConnection
+  value: 'be6696f8-9e69-447c-9943-1cef7b0178af'
+- name: imageRepository
+  value: 'fashionapiproject'
+- name: containerRegistry
+  value: 'netareg.azurecr.io'
+- name: dockerfilePath
+  value: '$(Build.SourcesDirectory)/Dockerfile'
+- name: tag
+  value: '$(Build.BuildId)'
+- name: vmImageName
+  value: 'ubuntu-latest'
+
+stages:
+- stage: Build
+  displayName: Build and push stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        command: buildAndPush
+        repository: $(imageRepository)
+        dockerfile: $(dockerfilePath)
+        containerRegistry: $(dockerRegistryServiceConnection)
+        tags: |
+          $(tag)
+
+- stage: Deploy
+  displayName: Deploy to Azure Container App
+  dependsOn: Build
+  condition: succeeded()
+  jobs:
+  - job: Deploy
+    displayName: Deploy Job
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - checkout: none
+    - task: AzureCLI@2
+      displayName: Update Azure Container App Image
+      inputs:
+        azureSubscription: 'netaserviceconnection'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          az acr login --name $(containerRegistry)
+          az containerapp update \
+            --name apiimage \
+            --resource-group duduAI \
+            --image $(containerRegistry)/$(imageRepository):$(tag)

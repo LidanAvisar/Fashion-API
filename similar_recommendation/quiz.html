@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Style Quiz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+        .quiz-container {
+            background-color: #fff;
+            border-radius: 10px;
+            box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
+            padding: 30px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+        }
+        h1 {
+            color: #333;
+            margin-bottom: 20px;
+        }
+        .question {
+            margin-bottom: 20px;
+        }
+        .options {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        .option {
+            margin: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .option.selected {
+            background-color: #00b351;
+        }
+        #result, #quizForm, #file{
+            margin-top: 20px;
+            display: none; /* Initially hidden */
+        }
+        .send-button {
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .send-button:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="quiz-container">
+        <h1>Personal Style Quiz</h1>
+        <div class="question" data-question="season">What season are you shopping for?</div>
+        <div class="options">
+            <button class="option" onclick="selectAnswer(this, 'season')">Spring</button>
+            <button class="option" onclick="selectAnswer(this, 'season')">Summer</button>
+            <button class="option" onclick="selectAnswer(this, 'season')">Fall</button>
+            <button class="option" onclick="selectAnswer(this, 'season')">Winter</button>
+        </div>
+        <div class="question" data-question="occasion">What's the occasion?</div>
+        <div class="options">
+            <button class="option" onclick="selectAnswer(this, 'occasion')">Casual</button>
+            <button class="option" onclick="selectAnswer(this, 'occasion')">Business</button>
+            <button class="option" onclick="selectAnswer(this, 'occasion')">Formal</button>
+            <button class="option" onclick="selectAnswer(this, 'occasion')">Sporty</button>
+        </div>
+        <div class="question" data-question="color">What's your favorite color? (Please specify a basic color)</div>
+        <div class="options">
+            <button class="option" onclick="selectAnswer(this, 'color')">Black</button>
+            <button class="option" onclick="selectAnswer(this, 'color')">White</button>
+            <button class="option" onclick="selectAnswer(this, 'color')">Blue</button>
+            <button class="option" onclick="selectAnswer(this, 'color')">Pink</button>
+            <button class="option" onclick="selectAnswer(this, 'color')">Grey</button>
+        </div>
+        <div class="question" data-question="style">What style do you prefer?</div>
+        <div class="options">
+            <button class="option" onclick="selectAnswer(this, 'style')">Modern</button>
+            <button class="option" onclick="selectAnswer(this, 'style')">Classic</button>
+            <button class="option" onclick="selectAnswer(this, 'style')">Edgy</button>
+            <button class="option" onclick="selectAnswer(this, 'style')">Relaxed</button>
+        </div>
+        <div id="result"></div>
+        <form id="quizForm" action="/uploadfile/" enctype="multipart/form-data" method="post">
+            <input id="file" name="file" type="file">
+            <input type="submit" value="send" class="send-button">
+        </form>
+        <form id="quizForm1" action="/submit-quiz/" method="post">
+        <input type="hidden" name="season" id="seasonInput">
+    <input type="hidden" name="occasion" id="occasionInput">
+    <input type="hidden" name="color" id="colorInput">
+    <input type="hidden" name="style" id="styleInput">
+</form>
+
+    </div>
+
+    <script>
+        const answers = {};
+        function selectAnswer(button, question) {
+    const previouslySelected = button.parentNode.querySelector('.selected');
+    if (previouslySelected) {
+        previouslySelected.classList.remove('selected');
+    }
+
+    document.getElementById(question + 'Input').value = button.textContent;
+
+    button.classList.add('selected');
+    answers[question] = button.textContent;
+
+    if (Object.keys(answers).length === 4) {
+        document.getElementById('seasonInput').value = answers['season'];
+        document.getElementById('occasionInput').value = answers['occasion'];
+        document.getElementById('colorInput').value = answers['color'];
+        document.getElementById('styleInput').value = answers['style'];
+
+        // Show the submit button
+        document.getElementById('quizForm').style.display = 'block';
+        submitQuizAnswers();
+
+    }
+}
+ function submitQuizAnswers() {
+        fetch('/submit-quiz/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+            body: new URLSearchParams({
+                season: answers.season,
+                occasion: answers.occasion,
+                color: answers.color,
+                style: answers.style
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+        });
+    }
+    </script>
+</body>
+</html>
